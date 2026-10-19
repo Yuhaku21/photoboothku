@@ -7,9 +7,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Special+Elite&family=Orbitron:wght@600;800&family=Playfair+Display:wght@600;800&family=Poppins:wght@400;500;600&family=Press+Start+2P&family=Creepster&family=Audiowide&family=Bangers&family=Fredoka:wght@500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=mobile-responsive" />
 </head>
 <body data-theme="classic">
+  <div class="splash-screen" id="splashScreen" role="status" aria-label="Memuat SnapBooth">
+    <div class="splash-content">
+      <img class="splash-logo" src="logo.png" alt="Logo Photoboothku" />
+      <p class="splash-credit">Dibuat oleh seseorang yang sedang menjalin hubungan LDR</p>
+      <div class="splash-loader" aria-hidden="true"><span></span></div>
+    </div>
+  </div>
+
   <header class="hero">
     <h1 id="heroTitle">📸 SnapBooth</h1>
     <p>Pilih tema, berpose, dan unduh strip fotomu dalam hitungan detik.</p>
@@ -144,9 +152,31 @@
 
   <footer class="foot">Dibuat dengan HTML · CSS · JavaScript — fotomu tidak pernah diunggah ke server.</footer>
   <div class="toast" id="toast"></div>
+  <dialog class="donation-modal" id="donationModal" aria-labelledby="donationTitle">
+    <form method="dialog" class="donation-modal-card">
+      <button class="donation-close" type="submit" aria-label="Tutup">×</button>
+      <h2 id="donationTitle">Terima kasih sudah berkunjung</h2>
+      <p>Terimakasih sudah berkunjung di photoboothku, yuk donasi sedikit aja di qr berikut</p>
+      <img class="donation-qr" src="qris.jpeg" alt="QR donasi" />
+      <div class="donation-actions">
+        <button class="btn primary" id="btnDonated" type="button">Saya sudah donasi</button>
+        <button class="btn" id="btnContinueDownload" type="button">Lanjutkan simpan foto</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog class="donation-modal" id="donationThanksModal" aria-labelledby="donationThanksTitle">
+    <form method="dialog" class="donation-modal-card donation-thanks-card">
+      <button class="donation-close" type="submit" aria-label="Tutup">×</button>
+      <div class="donation-heart" aria-hidden="true">💚</div>
+      <h2 id="donationThanksTitle">Terima kasih, orang baik!</h2>
+      <p>Terimasih orang baik, semoga dilancarkan rejekinya</p>
+      <button class="btn primary big" id="btnSaveAfterDonation" type="button">Simpan foto</button>
+    </form>
+  </dialog>
   <!-- PeerJS: koneksi video langsung (WebRTC) untuk mode Berdua Online -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="script.js"></script>
   <script src="duo.js"></script>
+  <script src="splash.js"></script>
 </body>
 </html>

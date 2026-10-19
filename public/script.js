@@ -681,15 +681,20 @@ function renderResult() {
 
 /* ===================== AKSI HASIL ===================== */
 function allEmpty() { return state.shots.every((s) => !s); }
-function download() {
+function savePhoto() {
   if (allEmpty()) return toast("Ambil foto dulu ya 📸");
   $("resultCanvas").toBlob((b) => {
+    if (!b) return toast("Foto gagal disiapkan. Silakan coba lagi.");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(b);
     a.download = `snapbooth-${state.theme}-${Date.now()}.png`;
     a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     toast("Tersimpan ⬇");
   }, "image/png");
+}
+function download() {
+  if (allEmpty()) return toast("Ambil foto dulu ya 📸");
+  $("donationModal").showModal();
 }
 function share() {
   if (allEmpty()) return toast("Ambil foto dulu ya 📸");
@@ -729,6 +734,18 @@ $("btnFlip").onclick = async () => {
 $("btnStart").onclick = startSession;
 $("btnReset").onclick = () => { resetShots(); toast("Direset"); };
 $("btnDownload").onclick = download;
+$("btnDonated").onclick = () => {
+  $("donationModal").close();
+  $("donationThanksModal").showModal();
+};
+$("btnContinueDownload").onclick = () => {
+  $("donationModal").close();
+  savePhoto();
+};
+$("btnSaveAfterDonation").onclick = () => {
+  $("donationThanksModal").close();
+  savePhoto();
+};
 $("btnPrint").onclick = () => (allEmpty() ? toast("Ambil foto dulu ya 📸") : window.print());
 $("btnShare").onclick = share;
 $("fileInput").onchange = (e) => { loadFromFiles(e.target.files); e.target.value = ""; };
