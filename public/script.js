@@ -522,22 +522,28 @@ async function startSession() {
   if (window.Duo && !window.Duo.canStart()) return;
   if (!(await startCamera())) return;
   setBusy(true);
-  state.shots = Array(slots()).fill(null);
-  buildThumbs(); renderResult();
-  if (window.Duo) window.Duo.send({ t: "start", n: state.shots.length });
-  const sec = +$("timer").value;
-  for (let i = 0; i < state.shots.length; i++) {
-    buildDots(i);
-    await countdown(sec, i);
-    doFlash();
-    state.shots[i] = captureFrame();
-    if (window.Duo) window.Duo.sendShot(i);
-    buildDots(i + 1 < state.shots.length ? i + 1 : -1);
+  try {
+    state.shots = Array(slots()).fill(null);
     buildThumbs(); renderResult();
-    await sleep(900);
+    if (window.Duo) window.Duo.send({ t: "start", n: state.shots.length });
+    const sec = +$("timer").value;
+    for (let i = 0; i < state.shots.length; i++) {
+      buildDots(i);
+      await countdown(sec, i);
+      doFlash();
+      state.shots[i] = captureFrame();
+      if (window.Duo) await window.Duo.sendShot(i);
+      buildDots(i + 1 < state.shots.length ? i + 1 : -1);
+      buildThumbs(); renderResult();
+      await sleep(900);
+    }
+    finishSession();
+  } catch (error) {
+    console.error("Gagal menyelesaikan sesi foto:", error);
+    toast("Foto gagal dikirim ke teman. Silakan ulangi sesi.");
+  } finally {
+    setBusy(false);
   }
-  setBusy(false);
-  finishSession();
 }
 
 async function retake(i) {
@@ -545,14 +551,20 @@ async function retake(i) {
   if (window.Duo && !window.Duo.canStart()) return;
   if (!(await startCamera())) return;
   setBusy(true);
-  buildDots(i);
-  await countdown(+$("timer").value, i);
-  doFlash();
-  state.shots[i] = captureFrame();
-  if (window.Duo) window.Duo.sendShot(i);
-  buildDots(); buildThumbs(); renderResult();
-  setBusy(false);
-  saveHistory();
+  try {
+    buildDots(i);
+    await countdown(+$("timer").value, i);
+    doFlash();
+    state.shots[i] = captureFrame();
+    if (window.Duo) await window.Duo.sendShot(i);
+    buildDots(); buildThumbs(); renderResult();
+    saveHistory();
+  } catch (error) {
+    console.error("Gagal mengirim foto ulang:", error);
+    toast("Foto ulang gagal dikirim ke teman.");
+  } finally {
+    setBusy(false);
+  }
 }
 
 function finishSession() {

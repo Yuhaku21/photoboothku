@@ -32,6 +32,7 @@
 
   const net = { peer: null, conn: null, call: null, role: null, code: null };
   let mode = "solo";
+  let incomingShots = Promise.resolve();
   let inviteCode = (new URLSearchParams(location.search).get("room") || "")
     .toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8) || null;
 
@@ -300,28 +301,35 @@
   }
 
   function receiveShot(m) {
-    if (typeof m.i !== "number" || !m.buf) return;
+    if (!Number.isInteger(m.i) || m.i < 0 || m.i >= state.shots.length || !m.buf) return Promise.resolve();
     const url = URL.createObjectURL(new Blob([m.buf], { type: "image/jpeg" }));
-    const im = new Image();
-    im.onload = () => {
-      const c = document.createElement("canvas");
-      c.width = PW * 2; c.height = PH * 2;
-      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(url);
-      state.shots[m.i] = c;
-      buildThumbs(); renderResult();
-    };
-    im.src = url;
+    return new Promise((resolve, reject) => {
+      const im = new Image();
+      im.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = PW * 2; c.height = PH * 2;
+        c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        state.shots[m.i] = c;
+        buildThumbs(); renderResult();
+        resolve();
+      };
+      im.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error(`Gagal memuat foto ke-${m.i + 1} dari host.`));
+      };
+      im.src = url;
+    });
   }
 
-  function sendShot(i) {
+  async function sendShot(i) {
     if (net.role !== "host" || !net.conn || !net.conn.open) return;
     const c = state.shots[i];
     if (!c) return;
-    c.toBlob(async (b) => {
-      if (!b) return;
-      send({ t: "shot", i, buf: await b.arrayBuffer() });
-    }, "image/jpeg", 0.85);
+    const blob = await new Promise((resolve) => c.toBlob(resolve, "image/jpeg", 0.85));
+    if (!blob) throw new Error(`Gagal menyiapkan foto ke-${i + 1} untuk dikirim.`);
+    if (!net.conn || !net.conn.open) throw new Error("Koneksi dengan teman terputus sebelum foto terkirim.");
+    net.conn.send({ t: "shot", i, buf: await blob.arrayBuffer() });
   }
 
   function onData(m) {
@@ -347,12 +355,26 @@
         break;
       case "tick": if (guest) { showCount(m.n); buildDots(m.i); } break;
       case "flash": if (guest) { $("count").textContent = ""; doFlash(); } break;
-      case "shot": if (guest) receiveShot(m); break;
+      case "shot":
+        if (guest) {
+          incomingShots = incomingShots.then(() => receiveShot(m));
+          incomingShots.catch((error) => {
+            console.error("Gagal menerima hasil foto:", error);
+            setStatus("Gagal memuat hasil foto dari host. Minta host mengirim ulang sesi foto.", "error");
+          });
+        }
+        break;
       case "done":
         if (guest) {
-          document.body.classList.add("guest-results");
-          buildDots(); confetti(); toast("Selesai! 🎉"); saveHistory();
-          $("resultSection").scrollIntoView({ behavior: "smooth", block: "start" });
+          incomingShots.then(() => {
+            if (net.role !== "guest") return;
+            document.body.classList.add("guest-results");
+            buildDots(); confetti(); toast("Selesai! 🎉"); saveHistory();
+            $("resultSection").scrollIntoView({ behavior: "smooth", block: "start" });
+          }).catch((error) => {
+            console.error("Gagal menampilkan hasil sesi:", error);
+            toast("Hasil foto gagal dimuat. Silakan ulangi sesi.");
+          });
         }
         break;
       case "ready": if (!guest) toast("Temanmu sudah siap ✅"); break;

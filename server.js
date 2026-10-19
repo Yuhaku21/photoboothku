@@ -64,7 +64,7 @@ const server = http.createServer((req, res) => {
     const headers = {
       "Content-Type": MIME[ext] || "application/octet-stream",
       "Content-Length": stat.size,
-      "Cache-Control": ext === ".html" ? "no-cache" : "public, max-age=3600",
+      "Cache-Control": [".html", ".css", ".js"].includes(ext) ? "no-cache" : "public, max-age=3600",
     };
     res.writeHead(200, { "X-Content-Type-Options": "nosniff", "Permissions-Policy": "camera=(self), microphone=()", ...headers });
     if (req.method === "HEAD") return res.end();
