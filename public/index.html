@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SnapBooth – Photo Booth Online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Special+Elite&family=Orbitron:wght@600;800&family=Playfair+Display:wght@600;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="classic">
+  <header class="hero">
+    <h1 id="heroTitle">📸 SnapBooth</h1>
+    <p>Pilih tema, berpose, dan unduh strip fotomu dalam hitungan detik.</p>
+  </header>
+
+  <main class="layout">
+    <!-- PANEL KAMERA -->
+    <section class="panel stage">
+      <h2 class="panel-title">1. Pilih Tema</h2>
+      <div class="themes" id="themes"></div>
+
+      <h2 class="panel-title">2. Berpose!</h2>
+      <div class="camera-wrap" id="cameraWrap">
+        <video id="video" autoplay playsinline muted></video>
+        <div class="count" id="count"></div>
+        <div class="flash" id="flash"></div>
+        <div class="cam-msg" id="camMsg">
+          <div class="cam-icon">📷</div>
+          <p id="camMsgText">Kamera belum aktif</p>
+          <button class="btn primary" id="btnCam">Aktifkan Kamera</button>
+        </div>
+        <div class="dots" id="dots"></div>
+      </div>
+
+      <div class="controls">
+        <button class="btn primary big" id="btnStart">▶ Mulai Foto</button>
+        <button class="btn" id="btnReset">↺ Reset</button>
+        <button class="btn" id="btnFlip">🔄 Putar Kamera</button>
+        <label class="btn" for="fileInput">🖼️ Dari Galeri</label>
+        <input type="file" id="fileInput" accept="image/*" multiple hidden />
+      </div>
+    </section>
+
+    <!-- PANEL PENGATURAN -->
+    <aside class="panel settings">
+      <h2 class="panel-title">⚙️ Pengaturan</h2>
+
+      <label class="field">Layout
+        <select id="layout">
+          <option value="strip4">Strip Vertikal (4 foto)</option>
+          <option value="strip3">Strip Vertikal (3 foto)</option>
+          <option value="grid4">Grid 2×2 (4 foto)</option>
+          <option value="grid6">Grid 2×3 (6 foto)</option>
+        </select>
+      </label>
+
+      <label class="field">Hitung Mundur
+        <select id="timer">
+          <option value="2">2 detik</option>
+          <option value="3" selected>3 detik</option>
+          <option value="5">5 detik</option>
+          <option value="10">10 detik</option>
+        </select>
+      </label>
+
+      <div class="field">Filter Foto
+        <div class="chips" id="filters"></div>
+      </div>
+
+      <label class="field">Teks Caption
+        <input type="text" id="caption" maxlength="28" placeholder="cth: Ulang Tahun Rina 🎉" />
+      </label>
+
+      <div class="switches">
+        <label class="switch"><input type="checkbox" id="optMirror" checked /><span>Mode cermin</span></label>
+        <label class="switch"><input type="checkbox" id="optStickers" checked /><span>Stiker tema</span></label>
+        <label class="switch"><input type="checkbox" id="optDate" checked /><span>Tampilkan tanggal</span></label>
+        <label class="switch"><input type="checkbox" id="optSound" checked /><span>Suara</span></label>
+      </div>
+    </aside>
+  </main>
+
+  <!-- HASIL -->
+  <section class="panel result" id="resultSection">
+    <h2 class="panel-title">3. Hasil Fotomu</h2>
+    <div class="result-grid">
+      <div class="result-preview">
+        <canvas id="resultCanvas"></canvas>
+      </div>
+      <div class="result-side">
+        <p class="hint">Klik <b>Ulang</b> pada foto untuk memotret ulang satu frame saja.</p>
+        <div class="thumbs" id="thumbs"></div>
+        <div class="actions">
+          <button class="btn primary big" id="btnDownload">⬇ Unduh PNG</button>
+          <button class="btn" id="btnPrint">🖨️ Cetak</button>
+          <button class="btn" id="btnShare">🔗 Bagikan</button>
+        </div>
+        <h3 class="sub">Riwayat sesi ini</h3>
+        <div class="history" id="history"><span class="muted">Belum ada strip tersimpan.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">Dibuat dengan HTML · CSS · JavaScript — fotomu tidak pernah diunggah ke server.</footer>
+  <div class="toast" id="toast"></div>
+  <script src="script.js"></script>
+</body>
+</html>
