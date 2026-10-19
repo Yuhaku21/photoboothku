@@ -21,9 +21,47 @@
       <h2 class="panel-title">1. Pilih Tema</h2>
       <div class="themes" id="themes"></div>
 
-      <h2 class="panel-title">2. Berpose!</h2>
+      <h2 class="panel-title">2. Pilih Mode</h2>
+      <div class="mode-switch" id="modeSwitch">
+        <button class="seg active" data-mode="solo" type="button">👤 Solo</button>
+        <button class="seg" data-mode="duo" type="button">👥 Berdua Online</button>
+      </div>
+
+      <div class="room-card" id="roomCard" hidden>
+        <div id="roomIdle">
+          <p class="room-text">Buat ruangan, kirim link ke temanmu, lalu foto bareng walau berbeda tempat! 📸</p>
+          <button class="btn primary" id="btnCreate" type="button">➕ Buat Ruangan</button>
+        </div>
+
+        <div id="roomHost" hidden>
+          <div class="room-code">Kode ruangan: <b id="roomCode">------</b></div>
+          <div class="link-row">
+            <input type="text" id="roomLink" readonly aria-label="Link undangan" />
+            <button class="btn" id="btnCopy" type="button">📋 Salin</button>
+          </div>
+          <div class="share-row">
+            <a class="btn" id="btnWa" target="_blank" rel="noopener">💬 WhatsApp</a>
+            <button class="btn" id="btnShareLink" type="button">🔗 Bagikan</button>
+          </div>
+        </div>
+
+        <div id="roomGuest" hidden>
+          <p class="room-text">Kamu diundang ke ruangan <b id="guestCode"></b> 🎉</p>
+          <button class="btn primary" id="btnJoin" type="button">🚪 Gabung Sekarang</button>
+          <button class="linkbtn" id="btnOwnRoom" type="button">atau buat ruangan sendiri</button>
+        </div>
+
+        <div class="room-status" id="roomStatus" role="status" hidden></div>
+        <button class="btn" id="btnLeave" type="button" hidden>🚪 Keluar Ruangan</button>
+      </div>
+
+      <h2 class="panel-title">3. Berpose!</h2>
       <div class="camera-wrap" id="cameraWrap">
         <video id="video" autoplay playsinline muted></video>
+        <video id="remoteVideo" autoplay playsinline muted></video>
+        <div class="tag" id="tagLocal" hidden>Kamu</div>
+        <div class="tag" id="tagRemote" hidden>Teman</div>
+        <div class="waiting" id="waiting" hidden>Menunggu teman bergabung…<br />kirim link undangan 👆</div>
         <div class="count" id="count"></div>
         <div class="flash" id="flash"></div>
         <div class="cam-msg" id="camMsg">
@@ -38,6 +76,7 @@
         <button class="btn primary big" id="btnStart">▶ Mulai Foto</button>
         <button class="btn" id="btnReset">↺ Reset</button>
         <button class="btn" id="btnFlip">🔄 Putar Kamera</button>
+        <button class="btn primary" id="btnReady" type="button" hidden>✅ Saya Siap</button>
         <label class="btn" for="fileInput">🖼️ Dari Galeri</label>
         <input type="file" id="fileInput" accept="image/*" multiple hidden />
       </div>
@@ -84,7 +123,7 @@
 
   <!-- HASIL -->
   <section class="panel result" id="resultSection">
-    <h2 class="panel-title">3. Hasil Fotomu</h2>
+    <h2 class="panel-title">4. Hasil Fotomu</h2>
     <div class="result-grid">
       <div class="result-preview">
         <canvas id="resultCanvas"></canvas>
@@ -105,6 +144,9 @@
 
   <footer class="foot">Dibuat dengan HTML · CSS · JavaScript — fotomu tidak pernah diunggah ke server.</footer>
   <div class="toast" id="toast"></div>
+  <!-- PeerJS: koneksi video langsung (WebRTC) untuk mode Berdua Online -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="script.js"></script>
+  <script src="duo.js"></script>
 </body>
 </html>

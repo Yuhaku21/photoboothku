@@ -391,6 +391,7 @@ function setFilter(key) {
   state.filter = key;
   document.querySelectorAll(".chip").forEach((c) => c.classList.toggle("active", c.dataset.key === key));
   video.style.filter = FILTERS[key].css;
+  const rv = $("remoteVideo"); if (rv) rv.style.filter = FILTERS[key].css;
   renderResult();
 }
 function slots() { const l = LAYOUTS[$("layout").value]; return l.cols * l.rows; }
@@ -413,8 +414,10 @@ function buildThumbs() {
     if (s) {
       const c = document.createElement("canvas"); c.width = 200; c.height = 150;
       c.getContext("2d").drawImage(s, 0, 0, 200, 150); t.appendChild(c);
-      const b = document.createElement("button"); b.textContent = "Ulang";
-      b.onclick = () => retake(i); t.appendChild(b);
+      if (!(window.Duo && window.Duo.isGuest())) {   // tamu tidak bisa memotret ulang
+        const b = document.createElement("button"); b.textContent = "Ulang";
+        b.onclick = () => retake(i); t.appendChild(b);
+      }
     } else t.innerHTML = `<div class="empty">${i + 1}</div>`;
     box.appendChild(t);
   });
@@ -443,6 +446,7 @@ async function startCamera() {
 }
 
 function captureFrame() {
+  if (window.Duo && window.Duo.canDuet()) return window.Duo.captureDuet();   // mode berdua: gabungkan 2 kamera
   const c = document.createElement("canvas"); c.width = PW * 2; c.height = PH * 2;
   const ctx = c.getContext("2d");
   const vw = video.videoWidth, vh = video.videoHeight, target = c.width / c.height;
@@ -471,17 +475,22 @@ function beep(freq = 660, dur = 0.12, type = "sine", vol = 0.15) {
 function shutter() { beep(1200, 0.05, "square", 0.1); setTimeout(() => beep(400, 0.12, "square", 0.1), 60); }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function countdown(sec) {
+function showCount(n) {
   const el = $("count");
+  el.textContent = n; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+  beep(n === 1 ? 880 : 600);
+}
+async function countdown(sec, idx) {
   for (let i = sec; i >= 1; i--) {
-    el.textContent = i; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
-    beep(i === 1 ? 880 : 600);
+    showCount(i);
+    if (window.Duo) window.Duo.send({ t: "tick", n: i, i: idx });   // tampilkan hitung mundur di layar teman
     await sleep(1000);
   }
-  el.textContent = "";
+  $("count").textContent = "";
 }
 function doFlash() {
   const f = $("flash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); shutter();
+  if (window.Duo) window.Duo.send({ t: "flash" });
 }
 function confetti() {
   const list = THEMES[state.theme].stickers;
@@ -510,16 +519,19 @@ function setBusy(b) {
 
 async function startSession() {
   if (state.running) return;
+  if (window.Duo && !window.Duo.canStart()) return;
   if (!(await startCamera())) return;
   setBusy(true);
   state.shots = Array(slots()).fill(null);
   buildThumbs(); renderResult();
+  if (window.Duo) window.Duo.send({ t: "start", n: state.shots.length });
   const sec = +$("timer").value;
   for (let i = 0; i < state.shots.length; i++) {
     buildDots(i);
-    await countdown(sec);
+    await countdown(sec, i);
     doFlash();
     state.shots[i] = captureFrame();
+    if (window.Duo) window.Duo.sendShot(i);
     buildDots(i + 1 < state.shots.length ? i + 1 : -1);
     buildThumbs(); renderResult();
     await sleep(900);
@@ -530,18 +542,21 @@ async function startSession() {
 
 async function retake(i) {
   if (state.running) return;
+  if (window.Duo && !window.Duo.canStart()) return;
   if (!(await startCamera())) return;
   setBusy(true);
   buildDots(i);
-  await countdown(+$("timer").value);
+  await countdown(+$("timer").value, i);
   doFlash();
   state.shots[i] = captureFrame();
+  if (window.Duo) window.Duo.sendShot(i);
   buildDots(); buildThumbs(); renderResult();
   setBusy(false);
   saveHistory();
 }
 
 function finishSession() {
+  if (window.Duo) window.Duo.send({ t: "done" });
   confetti(); toast("Selesai! 🎉");
   saveHistory();
   $("resultSection").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -697,6 +712,7 @@ $("btnFlip").onclick = async () => {
   $("optMirror").checked = state.facing === "user";   // kamera belakang tidak perlu dicerminkan
   video.classList.toggle("mirror", $("optMirror").checked);
   await startCamera();
+  if (window.Duo) window.Duo.onCameraChanged();   // kirim kamera baru ke teman
 };
 $("btnStart").onclick = startSession;
 $("btnReset").onclick = () => { resetShots(); toast("Direset"); };
