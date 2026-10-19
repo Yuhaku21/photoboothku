@@ -69,7 +69,10 @@
     wrap.classList.toggle("host", role === "host");
     wrap.classList.toggle("guest", role === "guest");
     document.body.classList.toggle("is-guest", role === "guest");
+    document.body.classList.remove("guest-results");
     $("btnReady").hidden = role !== "guest";
+    $("btnReady").disabled = false;
+    $("btnReady").textContent = "✅ Saya Siap";
     const tl = $("tagLocal"), tr = $("tagRemote");
     tl.hidden = tr.hidden = !role;
     tl.style.left = role === "host" ? "8px" : "auto"; tl.style.right = role === "guest" ? "8px" : "auto";
@@ -327,14 +330,27 @@
     switch (m.t) {
       case "settings": if (guest) applySettings(m.s); break;
       case "start":
-        if (guest) { state.shots = Array(m.n).fill(null); buildDots(); buildThumbs(); renderResult(); }
+        if (guest) {
+          document.body.classList.remove("guest-results");
+          $("btnReady").disabled = false;
+          $("btnReady").textContent = "✅ Saya Siap";
+          state.shots = Array(m.n).fill(null); buildDots(); buildThumbs(); renderResult();
+        }
         break;
-      case "reset": if (guest) resetShots(); break;
+      case "reset":
+        if (guest) {
+          document.body.classList.remove("guest-results");
+          $("btnReady").disabled = false;
+          $("btnReady").textContent = "✅ Saya Siap";
+          resetShots();
+        }
+        break;
       case "tick": if (guest) { showCount(m.n); buildDots(m.i); } break;
       case "flash": if (guest) { $("count").textContent = ""; doFlash(); } break;
       case "shot": if (guest) receiveShot(m); break;
       case "done":
         if (guest) {
+          document.body.classList.add("guest-results");
           buildDots(); confetti(); toast("Selesai! 🎉"); saveHistory();
           $("resultSection").scrollIntoView({ behavior: "smooth", block: "start" });
         }
@@ -408,7 +424,12 @@
     } else $("btnCopy").click();
   };
   $("btnReady").onclick = () => {
-    if (net.conn && net.conn.open) { net.conn.send({ t: "ready" }); toast("Host diberi tahu ✅"); }
+    if (net.conn && net.conn.open) {
+      net.conn.send({ t: "ready" });
+      $("btnReady").disabled = true;
+      $("btnReady").textContent = "✅ Kamu Siap";
+      toast("Host diberi tahu ✅");
+    }
   };
   $("btnReset").addEventListener("click", () => send({ t: "reset" }));
 

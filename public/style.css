@@ -249,6 +249,20 @@ a.btn { text-decoration: none; }
 body.is-guest .themes, body.is-guest .settings { opacity: .55; }
 body.is-guest .theme-card, body.is-guest .chip { cursor: not-allowed; }
 
+/* Layar tamu difokuskan pada kamera, kesiapan, dan hitung mundur. */
+body.is-guest .layout { max-width: 720px; grid-template-columns: minmax(0, 1fr); }
+body.is-guest .hero p,
+body.is-guest .stage > .panel-title,
+body.is-guest #themes,
+body.is-guest #modeSwitch,
+body.is-guest #roomCard,
+body.is-guest .settings,
+body.is-guest:not(.guest-results) #resultSection,
+body.is-guest .foot,
+body.is-guest .controls > :not(#btnReady) { display: none; }
+body.is-guest .controls { justify-content: center; }
+body.is-guest #btnReady { min-width: min(100%, 240px); justify-content: center; }
+
 /* ===== Tema tambahan ===== */
 
 /* --- Pixel Arcade --- */
