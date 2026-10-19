@@ -203,6 +203,10 @@ select option { color: #222; }
 .history img:hover { transform: scale(1.06); }
 .muted { color: var(--muted); font-size: .85rem; }
 
+.seo-content { max-width: 900px; margin: 24px auto; padding: 0 16px; color: var(--muted); }
+.seo-content h2 { margin-bottom: 8px; color: var(--text); font-size: 1.1rem; }
+.seo-content p { margin-top: 8px; font-size: .9rem; line-height: 1.7; }
+
 .foot { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 10px; padding: 0 16px; }
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 30px); opacity: 0;
