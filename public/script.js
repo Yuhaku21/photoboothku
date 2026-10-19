@@ -18,6 +18,7 @@ const FILTERS = {
   vivid:   { label: "Vivid",   css: "saturate(1.6) contrast(1.1)" },
   vintage: { label: "Vintage", css: "sepia(.35) saturate(1.3) hue-rotate(-10deg) contrast(.95) brightness(1.05)" },
   cool:    { label: "Cool",    css: "saturate(1.2) hue-rotate(15deg) brightness(1.03)" },
+  horror:  { label: "Horor",   css: "grayscale(.75) contrast(1.35) brightness(.85) sepia(.25) hue-rotate(-25deg)" },
 };
 
 /* ---------- Helper gambar ---------- */
@@ -135,7 +136,213 @@ const THEMES = {
     },
     clip(ctx, x, y, w, h) { rr(ctx, x, y, w, h, 10); },
   },
+
+  /* ---------- 5 tema tambahan ---------- */
+  pixel: {
+    name: "Pixel Arcade", emoji: "👾", colors: ["#1b1464", "#00e5ff", "#ff3b6b"],
+    title: "PIXEL ARCADE", font: '"Press Start 2P", monospace', text: "#ffe14d", fontScale: 0.62,
+    stickers: ["👾", "🕹️", "⭐", "💎", "🍄", "❤️"], defaultFilter: "vivid",
+    pixelate: 6,   // foto di-pixelate + dikurangi warnanya (efek 8-bit)
+    bg(ctx, W, H) {
+      ctx.fillStyle = "#1b1464"; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#231a7c";
+      for (let y = 0; y < H; y += 24) for (let x = (y / 24) % 2 ? 0 : 24; x < W; x += 48) ctx.fillRect(x, y, 24, 24);
+      const r = mulberry32(21);
+      for (let i = 0; i < 70; i++) {
+        ctx.fillStyle = r() < 0.5 ? "#ffffff" : "#00e5ff"; ctx.globalAlpha = 0.35 + r() * 0.5;
+        ctx.fillRect(Math.floor((r() * W) / 4) * 4, Math.floor((r() * H) / 4) * 4, 4, 4);
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "#ff3b6b"; ctx.fillRect(0, 0, W, 8); ctx.fillRect(0, H - 8, W, 8);
+    },
+    frame(ctx, x, y, w, h) {
+      ctx.fillStyle = "#000"; ctx.fillRect(x - 16, y - 16, w + 32, h + 32);
+      ctx.fillStyle = "#00e5ff"; ctx.fillRect(x - 12, y - 12, w + 24, h + 24);
+      ctx.fillStyle = "#1b1464"; ctx.fillRect(x - 6, y - 6, w + 12, h + 12);
+      ctx.fillStyle = "#ff3b6b";
+      [[-12, -12], [w + 4, -12], [-12, h + 4], [w + 4, h + 4]].forEach(([dx, dy]) => ctx.fillRect(x + dx, y + dy, 8, 8));
+    },
+    clip(ctx, x, y, w, h) { ctx.beginPath(); ctx.rect(x, y, w, h); },
+    overlay(ctx, x, y, w, h) {   // garis scanline ala layar CRT
+      ctx.fillStyle = "rgba(0,0,0,.14)";
+      for (let yy = y; yy < y + h; yy += 4) ctx.fillRect(x, yy, w, 2);
+    },
+  },
+
+  horror: {
+    name: "Haunted House", emoji: "💀", colors: ["#0a0a0a", "#c1121f", "#8a8a8a"],
+    title: "HAUNTED BOOTH", font: '"Creepster", cursive', text: "#d62828", titleGlow: "#ff0000",
+    stickers: ["💀", "🕷️", "🦇", "🩸", "👻", "🕸️", "🪦"], defaultFilter: "horror",
+    bg(ctx, W, H) {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, "#0a0a0a"); g.addColorStop(1, "#2a0505");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      // kabut di bagian bawah
+      const fog = ctx.createLinearGradient(0, H - 200, 0, H);
+      fog.addColorStop(0, "rgba(200,200,200,0)"); fog.addColorStop(1, "rgba(200,200,200,.16)");
+      ctx.fillStyle = fog; ctx.fillRect(0, H - 200, W, 200);
+      // tetesan darah dari atas
+      const r = mulberry32(666);
+      ctx.fillStyle = "#8b0000"; ctx.fillRect(0, 0, W, 12);
+      for (let x = 14; x < W - 10; x += 26 + r() * 40) {
+        const len = 30 + r() * 110, wd = 8 + r() * 8;
+        ctx.fillRect(x, 0, wd, len);
+        ctx.beginPath(); ctx.arc(x + wd / 2, len, wd / 2 + 2, 0, Math.PI * 2); ctx.fill();
+      }
+    },
+    frame(ctx, x, y, w, h) {
+      ctx.save(); ctx.shadowColor = "#b30000"; ctx.shadowBlur = 20;
+      ctx.fillStyle = "#1a1a1a"; ctx.fillRect(x - 10, y - 10, w + 20, h + 20); ctx.restore();
+      ctx.lineWidth = 3; ctx.strokeStyle = "#7a0000"; ctx.strokeRect(x - 10, y - 10, w + 20, h + 20);
+      ctx.lineWidth = 1; ctx.strokeStyle = "#444"; ctx.strokeRect(x - 4, y - 4, w + 8, h + 8);
+    },
+    clip(ctx, x, y, w, h) { ctx.beginPath(); ctx.rect(x, y, w, h); },
+    overlay(ctx, x, y, w, h) {   // vinyet gelap kemerahan di tepi foto
+      const g = ctx.createRadialGradient(x + w / 2, y + h / 2, h * 0.25, x + w / 2, y + h / 2, w * 0.62);
+      g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(40,0,0,.75)");
+      ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+    },
+  },
+
+  space: {
+    name: "Galaxy Voyager", emoji: "🚀", colors: ["#0b1033", "#7b5cff", "#4de1ff"],
+    title: "GALAXY VOYAGER", font: '"Audiowide", sans-serif', text: "#c9ecff", titleGlow: "#7b5cff", fontScale: 0.9,
+    stickers: ["🚀", "🪐", "🌙", "⭐", "👽", "☄️", "🛸"], defaultFilter: "cool",
+    bg(ctx, W, H) {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, "#070a24"); g.addColorStop(0.55, "#1b0f4a"); g.addColorStop(1, "#3a1a6b");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      // nebula
+      [[W * 0.2, H * 0.25, 260, "rgba(123,92,255,.35)"], [W * 0.85, H * 0.6, 300, "rgba(77,225,255,.22)"], [W * 0.3, H * 0.9, 260, "rgba(255,80,200,.2)"]]
+        .forEach(([cx, cy, rad, col]) => {
+          const n = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+          n.addColorStop(0, col); n.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = n; ctx.fillRect(0, 0, W, H);
+        });
+      // bintang
+      const r = mulberry32(99);
+      for (let i = 0; i < 140; i++) {
+        ctx.globalAlpha = 0.3 + r() * 0.7; ctx.fillStyle = "#fff";
+        ctx.beginPath(); ctx.arc(r() * W, r() * H, 0.5 + r() * 1.8, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      // planet bercincin di pojok kiri atas
+      const pg = ctx.createRadialGradient(40, 46, 2, 46, 52, 24);
+      pg.addColorStop(0, "#ffd29a"); pg.addColorStop(1, "#c2410c");
+      ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(46, 52, 22, 0, Math.PI * 2); ctx.fill();
+      ctx.save(); ctx.translate(46, 52); ctx.rotate(-0.4);
+      ctx.strokeStyle = "rgba(255,225,170,.85)"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(0, 0, 34, 10, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+    },
+    frame(ctx, x, y, w, h) {
+      ctx.save(); ctx.shadowColor = "#4de1ff"; ctx.shadowBlur = 18;
+      ctx.lineWidth = 3; ctx.strokeStyle = "#7be8ff"; rr(ctx, x - 6, y - 6, w + 12, h + 12, 18); ctx.stroke(); ctx.restore();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(255,255,255,.6)"; rr(ctx, x - 2, y - 2, w + 4, h + 4, 14); ctx.stroke();
+    },
+    clip(ctx, x, y, w, h) { rr(ctx, x, y, w, h, 12); },
+  },
+
+  comic: {
+    name: "Comic Pop", emoji: "💥", colors: ["#ffd93d", "#e63946", "#1d3557"],
+    title: "POW! COMIC", font: '"Bangers", cursive', text: "#e63946", titleStroke: "#000", titleSize: 48, dateColor: "#1d3557",
+    stickers: ["💥", "💢", "⚡", "🗯️", "⭐", "😎"], defaultFilter: "vivid",
+    bg(ctx, W, H) {
+      ctx.fillStyle = "#ffd93d"; ctx.fillRect(0, 0, W, H);
+      // halftone
+      ctx.fillStyle = "rgba(230,57,70,.28)";
+      for (let y = 10; y < H; y += 20) for (let x = (y / 20) % 2 ? 10 : 20; x < W; x += 20) {
+        ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+      }
+      // ledakan di belakang judul
+      const sx = Math.min(W / 2 - 16, 250), sy = 48, n = 20;
+      ctx.beginPath();
+      for (let i = 0; i < n * 2; i++) {
+        const a = (i * Math.PI) / n, k = i % 2 ? 0.78 : 1;
+        const px = W / 2 + Math.cos(a) * k * sx, py = HEAD / 2 + 6 + Math.sin(a) * k * sy;
+        i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+      }
+      ctx.closePath(); ctx.fillStyle = "#fff"; ctx.fill();
+      ctx.lineWidth = 4; ctx.strokeStyle = "#000"; ctx.lineJoin = "miter"; ctx.stroke();
+    },
+    frame(ctx, x, y, w, h) {
+      ctx.fillStyle = "#000"; ctx.fillRect(x - 10 + 10, y - 10 + 10, w + 20, h + 20);
+      ctx.fillStyle = "#fff"; ctx.fillRect(x - 10, y - 10, w + 20, h + 20);
+      ctx.lineWidth = 6; ctx.strokeStyle = "#000"; ctx.strokeRect(x - 10, y - 10, w + 20, h + 20);
+    },
+    clip(ctx, x, y, w, h) { ctx.beginPath(); ctx.rect(x, y, w, h); },
+    overlay(ctx, x, y, w, h) {   // halftone di pojok kanan bawah foto
+      ctx.fillStyle = "rgba(0,0,0,.22)";
+      for (let yy = y + h; yy > y; yy -= 12) for (let xx = x + w; xx > x; xx -= 12) {
+        const d = Math.hypot(x + w - xx, y + h - yy), rad = 4 - d / 60;
+        if (rad > 0.4) { ctx.beginPath(); ctx.arc(xx, yy, rad, 0, Math.PI * 2); ctx.fill(); }
+      }
+    },
+  },
+
+  ocean: {
+    name: "Deep Ocean", emoji: "🐠", colors: ["#0e7490", "#03254c", "#c89b3c"],
+    title: "Deep Ocean", font: '"Fredoka", sans-serif', text: "#eafcff",
+    stickers: ["🐠", "🐙", "🐳", "🦀", "🐚", "🐡", "🌊"], defaultFilter: "cool",
+    bg(ctx, W, H) {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, "#1597b5"); g.addColorStop(0.5, "#0b5f8f"); g.addColorStop(1, "#03254c");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      // sinar cahaya dari permukaan
+      ctx.fillStyle = "rgba(255,255,255,.07)";
+      for (let i = 0; i < 5; i++) {
+        const x0 = W * (0.05 + i * 0.22);
+        ctx.beginPath(); ctx.moveTo(x0, 0); ctx.lineTo(x0 + 60, 0); ctx.lineTo(x0 + 220, H * 0.7); ctx.lineTo(x0 + 120, H * 0.7); ctx.closePath(); ctx.fill();
+      }
+      // gelembung
+      const r = mulberry32(5);
+      for (let i = 0; i < 28; i++) {
+        const bx = r() * W, by = r() * H, br = 3 + r() * 12;
+        ctx.fillStyle = "rgba(255,255,255,.08)"; ctx.strokeStyle = "rgba(255,255,255,.55)"; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(bx - br * 0.35, by - br * 0.35, br * 0.25, 0, Math.PI * 2); ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.fill();
+      }
+      // ombak di dasar
+      ["rgba(10,75,120,.5)", "rgba(6,50,95,.6)", "rgba(3,37,76,.8)"].forEach((col, k) => {
+        ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, H);
+        for (let x = 0; x <= W; x += 6) ctx.lineTo(x, H - 22 - k * 10 + Math.sin(x / 38 + k * 2) * 7);
+        ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
+      });
+    },
+    frame(ctx, x, y, w, h) {   // jendela kapal selam berbingkai kuningan
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = 12;
+      ctx.fillStyle = "#c89b3c"; rr(ctx, x - 14, y - 14, w + 28, h + 28, 26); ctx.fill(); ctx.restore();
+      ctx.lineWidth = 3; ctx.strokeStyle = "#7a5a14"; rr(ctx, x - 14, y - 14, w + 28, h + 28, 26); ctx.stroke();
+      ctx.fillStyle = "#3b2a08"; rr(ctx, x - 5, y - 5, w + 10, h + 10, 18); ctx.fill();
+      ctx.fillStyle = "#f3d27a";
+      [[-9, -9], [w + 9, -9], [-9, h + 9], [w + 9, h + 9]].forEach(([dx, dy]) => { ctx.beginPath(); ctx.arc(x + dx, y + dy, 3.5, 0, Math.PI * 2); ctx.fill(); });
+    },
+    clip(ctx, x, y, w, h) { rr(ctx, x, y, w, h, 14); },
+    overlay(ctx, x, y, w, h) {   // pantulan kaca
+      ctx.fillStyle = "rgba(255,255,255,.1)";
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + w * 0.45, y); ctx.lineTo(x, y + h * 0.6); ctx.closePath(); ctx.fill();
+    },
+  },
 };
+
+/* Gambar foto dengan efek pixel + palet warna terbatas (tema Pixel) */
+function drawPixelated(ctx, src, x, y, w, h, px) {
+  const tw = Math.round(w / px), th = Math.round(h / px);
+  const t = document.createElement("canvas"); t.width = tw; t.height = th;
+  const tc = t.getContext("2d");
+  tc.drawImage(src, 0, 0, tw, th);
+  try {
+    const d = tc.getImageData(0, 0, tw, th), p = d.data, step = 255 / 5;
+    for (let i = 0; i < p.length; i += 4) {
+      p[i] = Math.round(p[i] / step) * step;
+      p[i + 1] = Math.round(p[i + 1] / step) * step;
+      p[i + 2] = Math.round(p[i + 2] / step) * step;
+    }
+    tc.putImageData(d, 0, 0);
+  } catch (_) { /* tanpa kuantisasi warna jika tidak diizinkan */ }
+  ctx.save(); ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(t, 0, 0, tw, th, x, y, w, h);
+  ctx.restore();
+}
 
 /* ===================== STATE ===================== */
 const $ = (id) => document.getElementById(id);
@@ -375,9 +582,15 @@ function renderResult() {
   T.bg(ctx, W, H);
 
   // Judul
+  const fs = T.fontScale || 1;
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillStyle = T.text; ctx.font = `34px ${T.font}`;
-  if (T.glow) { ctx.shadowColor = "#25f4ee"; ctx.shadowBlur = 16; }
+  ctx.fillStyle = T.text; ctx.font = `${(T.titleSize || 34) * fs}px ${T.font}`;
+  const tg = T.titleGlow || (T.glow ? "#25f4ee" : null);
+  if (tg) { ctx.shadowColor = tg; ctx.shadowBlur = 16; }
+  if (T.titleStroke) {
+    ctx.lineJoin = "round"; ctx.lineWidth = 7; ctx.strokeStyle = T.titleStroke;
+    ctx.strokeText(T.title, W / 2, HEAD / 2 + 6);
+  }
   ctx.fillText(T.title, W / 2, HEAD / 2 + 6);
   ctx.shadowBlur = 0;
 
@@ -390,8 +603,11 @@ function renderResult() {
     ctx.save();
     T.clip(ctx, x, y, PW, PH); ctx.clip();
     const s = state.shots[r * L.cols + c];
-    if (s) ctx.drawImage(s, x, y, PW, PH);
-    else {
+    if (s) {
+      if (T.pixelate) drawPixelated(ctx, s, x, y, PW, PH, T.pixelate);
+      else ctx.drawImage(s, x, y, PW, PH);
+      if (T.overlay) T.overlay(ctx, x, y, PW, PH);
+    } else {
       ctx.fillStyle = "rgba(128,128,128,.25)"; ctx.fillRect(x, y, PW, PH);
       ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.font = "54px sans-serif"; ctx.fillText("📷", x + PW / 2, y + PH / 2);
     }
@@ -418,9 +634,17 @@ function renderResult() {
   const cap = $("caption").value.trim();
   ctx.fillStyle = T.text; ctx.textAlign = "center";
   if (T.glow) { ctx.shadowColor = "#ff3df2"; ctx.shadowBlur = 12; }
-  if (cap) { ctx.font = `26px ${T.font}`; ctx.fillText(cap, W / 2, H - FOOT / 2 - 6); }
+  if (cap) {
+    ctx.font = `${26 * fs}px ${T.font}`;
+    if (T.titleStroke) {
+      ctx.lineJoin = "round"; ctx.lineWidth = 5; ctx.strokeStyle = T.titleStroke;
+      ctx.strokeText(cap, W / 2, H - FOOT / 2 - 6);
+    }
+    ctx.fillText(cap, W / 2, H - FOOT / 2 - 6);
+  }
   if ($("optDate").checked) {
-    ctx.font = `15px ${T.font}`; ctx.globalAlpha = 0.85;
+    ctx.fillStyle = T.dateColor || T.text;
+    ctx.font = `${Math.max(11, 15 * fs)}px ${T.font}`; ctx.globalAlpha = 0.85;
     ctx.fillText(new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
       W / 2, H - (cap ? 40 : FOOT / 2 - 4));
     ctx.globalAlpha = 1;

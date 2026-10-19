@@ -182,6 +182,107 @@ select option { color: #222; }
 .confetti { position: fixed; top: -40px; z-index: 40; pointer-events: none; animation: fall linear forwards; }
 @keyframes fall { to { transform: translateY(110vh) rotate(540deg); opacity: .8; } }
 
+/* ===== Tema tambahan ===== */
+
+/* --- Pixel Arcade --- */
+body[data-theme="pixel"] {
+  --bg: #1b1464; --bg2: #2a1f8f; --card: rgba(0,0,0,.35);
+  --text: #f1f1ff; --muted: #a7a3ff; --accent: #00e5ff; --accent2: #ff3b6b; --on-accent: #0b0840;
+  --head-font: "Press Start 2P", monospace; --radius: 0px;
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,.04) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.04) 75%),
+    linear-gradient(45deg, rgba(255,255,255,.04) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.04) 75%),
+    linear-gradient(135deg, var(--bg), var(--bg2));
+  background-size: 32px 32px, 32px 32px, auto;
+  background-position: 0 0, 16px 16px, 0 0;
+}
+body[data-theme="pixel"] .hero h1 { font-size: clamp(1.1rem, 4.5vw, 2rem); line-height: 1.4; text-shadow: 4px 4px 0 #ff3b6b; }
+body[data-theme="pixel"] .panel { border: 4px solid var(--accent); box-shadow: 6px 6px 0 #000; backdrop-filter: none; }
+body[data-theme="pixel"] .panel-title { font-family: var(--head-font); font-size: .72rem; line-height: 1.6; }
+body[data-theme="pixel"] .camera-wrap,
+body[data-theme="pixel"] .theme-card,
+body[data-theme="pixel"] .btn,
+body[data-theme="pixel"] .chip,
+body[data-theme="pixel"] .thumb,
+body[data-theme="pixel"] .result-preview,
+body[data-theme="pixel"] select,
+body[data-theme="pixel"] input[type="text"],
+body[data-theme="pixel"] #resultCanvas { border-radius: 0; }
+body[data-theme="pixel"] .btn { box-shadow: 4px 4px 0 #000; font-family: var(--head-font); font-size: .66rem; line-height: 1.5; }
+body[data-theme="pixel"] .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
+body[data-theme="pixel"] .theme-card .nm,
+body[data-theme="pixel"] .chip { font-family: var(--head-font); font-size: .5rem; line-height: 1.5; }
+
+/* --- Haunted House (horor) --- */
+body[data-theme="horror"] {
+  --bg: #0a0a0a; --bg2: #2a0505; --card: rgba(255,255,255,.05);
+  --text: #e8e0e0; --muted: #a58a8a; --accent: #c1121f; --accent2: #6b0000; --on-accent: #fff;
+  --head-font: "Creepster", cursive;
+  background-image: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.7) 100%), linear-gradient(180deg, var(--bg), var(--bg2));
+}
+body[data-theme="horror"] .hero h1 {
+  font-weight: 400; letter-spacing: 3px; text-shadow: 0 0 14px #ff0000, 0 3px 0 #4a0000;
+  animation: flicker 3.5s infinite;
+}
+body[data-theme="horror"] .camera-wrap { box-shadow: 0 0 22px rgba(193,18,31,.6); }
+body[data-theme="horror"] .panel { box-shadow: 0 10px 30px rgba(0,0,0,.6), 0 0 18px rgba(193,18,31,.15); }
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+  20%, 24%, 55% { opacity: .35; }
+}
+@media (prefers-reduced-motion: reduce) { body[data-theme="horror"] .hero h1 { animation: none; } }
+
+/* --- Galaxy Voyager --- */
+body[data-theme="space"] {
+  --bg: #070a24; --bg2: #2a1466; --card: rgba(123,92,255,.12);
+  --text: #e8f1ff; --muted: #9db0e6; --accent: #7be8ff; --accent2: #b58cff; --on-accent: #06112e;
+  --head-font: "Audiowide", sans-serif;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 90px 80px, rgba(255,255,255,.8), transparent),
+    radial-gradient(2px 2px at 150px 20px, #bfe7ff, transparent),
+    radial-gradient(1px 1px at 60px 140px, rgba(255,255,255,.7), transparent),
+    linear-gradient(135deg, var(--bg), var(--bg2));
+  background-size: 180px 180px, 180px 180px, 180px 180px, 180px 180px, auto;
+}
+body[data-theme="space"] .hero h1 { text-shadow: 0 0 16px var(--accent2), 0 0 34px var(--accent); font-weight: 400; }
+body[data-theme="space"] .camera-wrap { box-shadow: 0 0 24px rgba(123,232,255,.45); }
+
+/* --- Comic Pop --- */
+body[data-theme="comic"] {
+  --bg: #ffd93d; --bg2: #ffb703; --card: #ffffff;
+  --text: #1d1d1d; --muted: #4a4a4a; --accent: #e63946; --accent2: #1d3557; --on-accent: #fff;
+  --head-font: "Bangers", cursive;
+  background-image: radial-gradient(rgba(230,57,70,.28) 22%, transparent 24%), linear-gradient(135deg, var(--bg), var(--bg2));
+  background-size: 18px 18px, auto;
+}
+body[data-theme="comic"] .hero h1 {
+  font-weight: 400; letter-spacing: 2px; -webkit-text-stroke: 2px #000; text-shadow: 4px 4px 0 #000;
+}
+body[data-theme="comic"] .panel { border: 3px solid #000; box-shadow: 6px 6px 0 #000; backdrop-filter: none; }
+body[data-theme="comic"] .panel-title { font-family: var(--head-font); font-size: 1.25rem; font-weight: 400; letter-spacing: 1px; }
+body[data-theme="comic"] .camera-wrap { border-color: #000; box-shadow: 5px 5px 0 #000; }
+body[data-theme="comic"] .btn { border: 3px solid #000; color: #000; box-shadow: 3px 3px 0 #000; }
+body[data-theme="comic"] .btn.primary { color: #fff; }
+body[data-theme="comic"] .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+body[data-theme="comic"] .theme-card { border: 2px solid #000; }
+body[data-theme="comic"] .theme-card.active { border-color: var(--accent); }
+body[data-theme="comic"] .toast { border: 2px solid #000; }
+
+/* --- Deep Ocean --- */
+body[data-theme="ocean"] {
+  --bg: #0e7490; --bg2: #03254c; --card: rgba(255,255,255,.12);
+  --text: #eafcff; --muted: #a8d8e6; --accent: #ffd166; --accent2: #5ee1ff; --on-accent: #03254c;
+  --head-font: "Fredoka", sans-serif;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(255,255,255,.07) 0 6px, transparent 7px),
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,.06) 0 10px, transparent 11px),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+  background-size: 140px 140px, 220px 220px, auto;
+}
+body[data-theme="ocean"] .hero h1 { font-weight: 600; text-shadow: 0 3px 0 rgba(3,37,76,.6); }
+body[data-theme="ocean"] .camera-wrap { border-radius: 22px; box-shadow: 0 0 0 4px #7a5a14, 0 10px 26px rgba(0,0,0,.4); }
+
 /* ===== Responsive: tablet ===== */
 @media (max-width: 860px) {
   .layout { grid-template-columns: 1fr; }
