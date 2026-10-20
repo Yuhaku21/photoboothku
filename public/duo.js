@@ -276,11 +276,12 @@
   const currentSettings = () => ({
     theme: state.theme, filter: state.filter, layout: $("layout").value, timer: $("timer").value,
     caption: $("caption").value, stickers: $("optStickers").checked, date: $("optDate").checked, mirror: $("optMirror").checked,
+    backgroundStyle: state.backgroundStyle, smoothFace: state.smoothFace,
   });
   function syncSettings() { send({ t: "settings", s: currentSettings() }); }
 
   function applySettings(s) {   // dijalankan di sisi tamu
-    if (!s || !THEMES[s.theme] || !LAYOUTS[s.layout] || !FILTERS[s.filter]) return;
+    if (!s || !THEMES[s.theme] || !LAYOUTS[s.layout] || !FILTERS[s.filter] || !["theme", "blur", "solid"].includes(s.backgroundStyle)) return;
     const layoutChanged = $("layout").value !== s.layout;
     $("layout").value = s.layout;
     $("timer").value = s.timer;
@@ -288,6 +289,9 @@
     $("optStickers").checked = !!s.stickers;
     $("optDate").checked = !!s.date;
     $("optMirror").checked = !!s.mirror;
+    $("optFaceSmooth").checked = !!s.smoothFace;
+    state.smoothFace = !!s.smoothFace;
+    setBackgroundStyle(s.backgroundStyle);
     $("video").classList.toggle("mirror", !!s.mirror);
     syncMirror();
     if (s.theme !== state.theme) {
@@ -400,15 +404,25 @@
     ctx.restore();
   }
 
-  function captureDuet() {
+  async function captureDuet() {
     const c = document.createElement("canvas");
     c.width = PW * 2; c.height = PH * 2;
     const ctx = c.getContext("2d");
     const half = c.width / 2, mirror = $("optMirror").checked;
-    ctx.filter = FILTERS[state.filter].css;
-    drawCover(ctx, $("video"), 0, 0, half, c.height, mirror);        // kiri  = host
-    drawCover(ctx, remoteVideo, half, 0, half, c.height, mirror);    // kanan = teman
-    ctx.filter = "none";
+    const local = document.createElement("canvas");
+    local.width = half; local.height = c.height;
+    const localCtx = local.getContext("2d");
+    localCtx.filter = FILTERS[state.filter].css;
+    drawCover(localCtx, $("video"), 0, 0, half, c.height, mirror);
+    const processedLocal = await window.applyCameraEffects(local);
+    const remote = document.createElement("canvas");
+    remote.width = half; remote.height = c.height;
+    const remoteCtx = remote.getContext("2d");
+    remoteCtx.filter = FILTERS[state.filter].css;
+    drawCover(remoteCtx, remoteVideo, 0, 0, half, c.height, mirror);
+    const processedRemote = await window.applyCameraEffects(remote);
+    ctx.drawImage(processedLocal, 0, 0);
+    ctx.drawImage(processedRemote, half, 0);
     ctx.fillStyle = "#fff"; ctx.fillRect(half - 2, 0, 4, c.height);   // garis pemisah tipis
     return c;
   }

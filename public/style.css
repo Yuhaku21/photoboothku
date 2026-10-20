@@ -166,6 +166,9 @@ body[data-theme="neon"] .btn.primary { box-shadow: 0 0 16px var(--accent); }
 /* Pengaturan */
 .settings { align-self: start; }
 .field { display: flex; flex-direction: column; gap: 6px; font-size: .85rem; font-weight: 500; margin-bottom: 14px; }
+.camera-effects { min-width: 0; padding: 0; border: 0; }
+.camera-effects legend { margin-bottom: 6px; }
+.field-hint { color: var(--muted); font-size: .76rem; font-weight: 400; line-height: 1.5; }
 select, input[type="text"] {
   font: inherit; padding: 9px 12px; border-radius: 10px;
   border: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);

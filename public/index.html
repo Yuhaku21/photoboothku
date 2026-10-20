@@ -151,6 +151,16 @@
         <div class="chips" id="filters"></div>
       </div>
 
+      <fieldset class="field camera-effects">
+        <legend>Efek Kamera</legend>
+        <span class="field-hint">Pilih satu gaya latar untuk hasil foto:</span>
+        <label class="switch"><input type="checkbox" name="backgroundStyle" value="theme" checked /><span>Ikuti latar tema photo strip</span></label>
+        <label class="switch"><input type="checkbox" name="backgroundStyle" value="blur" /><span>Blur latar asli</span></label>
+        <label class="switch"><input type="checkbox" name="backgroundStyle" value="solid" /><span>Warna solid krem</span></label>
+        <label class="switch"><input type="checkbox" id="optFaceSmooth" /><span>Deteksi & haluskan wajah (natural)</span></label>
+        <span class="field-hint">Wajah dideteksi di perangkat saat foto diambil; efek hanya diterapkan pada area wajah. Tidak mengenali identitas. Model perlu diunduh dari internet.</span>
+      </fieldset>
+
       <label class="field">Teks Caption
         <input type="text" id="caption" maxlength="28" placeholder="cth: Ulang Tahun Rina 🎉" />
       </label>
@@ -216,6 +226,8 @@
   </dialog>
   <!-- PeerJS: koneksi video langsung (WebRTC) untuk mode Berdua Online -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js"></script>
   <script src="script.js"></script>
   <script src="duo.js"></script>
   <script src="splash.js"></script>

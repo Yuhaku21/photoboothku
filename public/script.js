@@ -350,6 +350,8 @@ const video = $("video");
 const state = {
   theme: "classic",
   filter: "bw",
+  backgroundStyle: "theme",
+  smoothFace: false,
   stream: null,
   shots: [],
   running: false,
@@ -393,6 +395,12 @@ function setFilter(key) {
   video.style.filter = FILTERS[key].css;
   const rv = $("remoteVideo"); if (rv) rv.style.filter = FILTERS[key].css;
   renderResult();
+}
+function setBackgroundStyle(style) {
+  state.backgroundStyle = style;
+  document.querySelectorAll('input[name="backgroundStyle"]').forEach((input) => {
+    input.checked = input.value === style;
+  });
 }
 function slots() { const l = LAYOUTS[$("layout").value]; return l.cols * l.rows; }
 function resetShots() {
@@ -445,7 +453,7 @@ async function startCamera() {
   }
 }
 
-function captureFrame() {
+async function captureFrame() {
   if (window.Duo && window.Duo.canDuet()) return window.Duo.captureDuet();   // mode berdua: gabungkan 2 kamera
   const c = document.createElement("canvas"); c.width = PW * 2; c.height = PH * 2;
   const ctx = c.getContext("2d");
@@ -457,8 +465,99 @@ function captureFrame() {
   ctx.filter = FILTERS[state.filter].css;
   ctx.drawImage(video, sx, sy, sw, sh, 0, 0, c.width, c.height);
   ctx.restore();
-  return c;
+  return applyCameraEffects(c);
 }
+
+const FACE_OVAL = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
+let selfieSegmenter;
+let faceMesh;
+async function ensureCameraModels() {
+  if (state.backgroundStyle !== "none" && !selfieSegmenter) {
+    if (!window.SelfieSegmentation) throw new Error("Model pemisah latar tidak berhasil dimuat.");
+    selfieSegmenter = new SelfieSegmentation({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/${file}`,
+    });
+    selfieSegmenter.setOptions({ modelSelection: 1, selfieMode: false });
+  }
+  if (state.smoothFace && !faceMesh) {
+    if (!window.FaceMesh) throw new Error("Model pemulusan wajah tidak berhasil dimuat.");
+    faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/${file}`,
+    });
+    faceMesh.setOptions({ maxNumFaces: 4, refineLandmarks: false, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+  }
+}
+
+function runModel(model, image, resultKey) {
+  return new Promise((resolve, reject) => {
+    const onResults = (result) => {
+      model.onResults(onResults);
+      resolve(result[resultKey]);
+    };
+    model.onResults(onResults);
+    model.send({ image }).catch((error) => {
+      model.onResults(() => {});
+      reject(error);
+    });
+  });
+}
+
+async function applyCameraEffects(source) {
+  if (state.backgroundStyle === "none" && !state.smoothFace) return source;
+  await ensureCameraModels();
+  let output = source;
+  if (state.backgroundStyle !== "none") {
+    const mask = await runModel(selfieSegmenter, source, "segmentationMask");
+    if (!mask) throw new Error("Pemisahan latar gagal diproses.");
+    const foreground = document.createElement("canvas");
+    foreground.width = source.width; foreground.height = source.height;
+    const fg = foreground.getContext("2d");
+    fg.drawImage(source, 0, 0);
+    fg.globalCompositeOperation = "destination-in";
+    fg.drawImage(mask, 0, 0, foreground.width, foreground.height);
+    output = document.createElement("canvas");
+    output.width = source.width; output.height = source.height;
+    const ctx = output.getContext("2d");
+    if (state.backgroundStyle === "theme") {
+      THEMES[state.theme].bg(ctx, output.width, output.height);
+    } else if (state.backgroundStyle === "blur") {
+      ctx.save();
+      ctx.filter = "blur(22px)";
+      ctx.drawImage(source, -18, -18, output.width + 36, output.height + 36);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = "#e8d9a0";
+      ctx.fillRect(0, 0, output.width, output.height);
+    }
+    ctx.drawImage(foreground, 0, 0);
+  }
+  if (state.smoothFace) {
+    const landmarks = await runModel(faceMesh, source, "multiFaceLandmarks");
+    if (landmarks) {
+      const softened = document.createElement("canvas");
+      softened.width = output.width; softened.height = output.height;
+      const smoothCtx = softened.getContext("2d");
+      smoothCtx.filter = "blur(1.1px)";
+      smoothCtx.drawImage(output, 0, 0);
+      const ctx = output.getContext("2d");
+      landmarks.forEach((face) => {
+        ctx.save();
+        ctx.beginPath();
+        FACE_OVAL.forEach((index, pointIndex) => {
+          const point = face[index];
+          const x = point.x * output.width, y = point.y * output.height;
+          if (pointIndex === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(softened, 0, 0);
+        ctx.restore();
+      });
+    }
+  }
+  return output;
+}
+window.applyCameraEffects = applyCameraEffects;
 
 /* ===================== SUARA & EFEK ===================== */
 let audioCtx;
@@ -531,7 +630,7 @@ async function startSession() {
       buildDots(i);
       await countdown(sec, i);
       doFlash();
-      state.shots[i] = captureFrame();
+      state.shots[i] = await captureFrame();
       if (window.Duo) await window.Duo.sendShot(i);
       buildDots(i + 1 < state.shots.length ? i + 1 : -1);
       buildThumbs(); renderResult();
@@ -540,7 +639,7 @@ async function startSession() {
     finishSession();
   } catch (error) {
     console.error("Gagal menyelesaikan sesi foto:", error);
-    toast("Foto gagal dikirim ke teman. Silakan ulangi sesi.");
+    toast(error instanceof Error ? error.message : "Efek kamera gagal diproses. Silakan coba lagi.");
   } finally {
     setBusy(false);
   }
@@ -555,13 +654,13 @@ async function retake(i) {
     buildDots(i);
     await countdown(+$("timer").value, i);
     doFlash();
-    state.shots[i] = captureFrame();
+    state.shots[i] = await captureFrame();
     if (window.Duo) await window.Duo.sendShot(i);
     buildDots(); buildThumbs(); renderResult();
     saveHistory();
   } catch (error) {
     console.error("Gagal mengirim foto ulang:", error);
-    toast("Foto ulang gagal dikirim ke teman.");
+    toast(error instanceof Error ? error.message : "Efek kamera gagal diproses. Silakan coba lagi.");
   } finally {
     setBusy(false);
   }
@@ -752,6 +851,13 @@ $("fileInput").onchange = (e) => { loadFromFiles(e.target.files); e.target.value
 $("layout").onchange = resetShots;
 $("caption").oninput = renderResult;
 ["optStickers", "optDate"].forEach((id) => ($(id).onchange = renderResult));
+$("optFaceSmooth").onchange = () => { state.smoothFace = $("optFaceSmooth").checked; };
+document.querySelectorAll('input[name="backgroundStyle"]').forEach((input) => {
+  input.addEventListener("change", () => {
+    if (input.checked) setBackgroundStyle(input.value);
+    else setBackgroundStyle(state.backgroundStyle);
+  });
+});
 $("optMirror").onchange = () => video.classList.toggle("mirror", $("optMirror").checked);
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space" && !["INPUT", "SELECT", "TEXTAREA", "BUTTON"].includes(document.activeElement.tagName)) {
