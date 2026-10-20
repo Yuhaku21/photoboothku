@@ -61,6 +61,7 @@
   function lockControls(lock) {   // tamu tidak boleh mengubah pengaturan (host yang mengatur)
     document.querySelectorAll(".settings select, .settings input, .theme-card, .chip, #btnStart, #btnReset, #fileInput")
       .forEach((e) => (e.disabled = lock));
+    $("layout").disabled = lock;
     const lbl = document.querySelector('label[for="fileInput"]');
     if (lbl) lbl.classList.toggle("is-disabled", lock);
   }
@@ -300,6 +301,8 @@
       document.querySelectorAll(".theme-card").forEach((c) => c.classList.toggle("active", c.dataset.key === s.theme));
       $("heroTitle").textContent = "📸 " + THEMES[s.theme].title.replace(" ♡", "");
     }
+    $("layout").disabled = net.role === "guest";
+    applyThemePalette(THEMES[s.theme]);
     setFilter(s.filter);   // sekaligus merender ulang strip
     if (layoutChanged) resetShots();
   }

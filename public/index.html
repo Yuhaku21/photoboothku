@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https: wss: blob:; media-src 'self' blob:; object-src 'none';" />
   <meta name="description" content="Buat photobooth online gratis langsung dari browser. Pilih tema dan filter, foto sendiri atau bersama teman jarak jauh, lalu unduh photo strip PNG." />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#1a1a1a" />
@@ -136,6 +137,7 @@
           <option value="grid4">Grid 2×2 (4 foto)</option>
           <option value="grid6">Grid 2×3 (6 foto)</option>
         </select>
+        <span class="field-hint">Frame scrapbook menyesuaikan susunan foto dengan layout yang dipilih.</span>
       </label>
 
       <label class="field">Hitung Mundur

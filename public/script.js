@@ -324,6 +324,41 @@ const THEMES = {
   },
 };
 
+const DESIGN_FRAMES = [
+  { id: "good-day", name: "Good Day", emoji: "💖", crop: [28, 14, 266, 400], x: 52, w: 163, ys: [66, 151, 232, 288], hs: [75, 77, 53, 68], colors: ["#ffe8ed", "#e85b86", "#f4a6b6"], title: "Good Day" },
+  { id: "blue-skies", name: "Blue Skies", emoji: "☁️", crop: [339, 14, 268, 400], x: 57, w: 160, ys: [70, 148, 233, 288], hs: [72, 82, 51, 72], colors: ["#d9f0ff", "#369bd5", "#77c8f1"], title: "Blue Skies & Good Vibes" },
+  { id: "good-things", name: "Good Things", emoji: "🌼", crop: [652, 14, 266, 400], x: 51, w: 161, ys: [69, 146, 233, 284], hs: [73, 80, 51, 53], colors: ["#fff0db", "#ed8c74", "#ffc659"], title: "Good Things Take Time" },
+  { id: "cool-kids", name: "Cool Kids Club", emoji: "🦄", crop: [964, 14, 264, 400], x: 51, w: 161, ys: [70, 157, 234, 292], hs: [73, 73, 56, 68], colors: ["#e8ddff", "#8d62d8", "#c2a0f3"], title: "Cool Kids Club" },
+  { id: "forever", name: "Forever & Always", emoji: "🖤", crop: [28, 426, 266, 400], x: 43, w: 176, ys: [53, 136, 209, 287], hs: [78, 67, 74, 71], colors: ["#171515", "#f5eee6", "#ed7091"], title: "Forever & Always" },
+  { id: "self-love", name: "Self Love", emoji: "💗", crop: [339, 426, 268, 400], x: 52, w: 164, ys: [64, 144, 232, 287], hs: [74, 71, 53, 73], colors: ["#c9f4f1", "#25aaa9", "#ffcf5d"], title: "Self Love" },
+  { id: "happier-together", name: "Happier Together", emoji: "🫶", crop: [652, 426, 266, 400], x: 51, w: 163, ys: [65, 143, 218, 298], hs: [74, 68, 77, 53], colors: ["#fff0df", "#ef9c86", "#d887c7"], title: "Happier Together" },
+  { id: "girl-power", name: "Girl Power", emoji: "💅", crop: [964, 426, 264, 400], x: 53, w: 162, ys: [66, 144, 218, 288], hs: [73, 69, 67, 71], colors: ["#ffd0e5", "#ed478b", "#ff9a24"], title: "Girl Power" },
+  { id: "good-food", name: "Good Food Mood", emoji: "🍒", crop: [28, 839, 266, 400], x: 51, w: 164, ys: [63, 140, 212, 272], hs: [74, 68, 57, 61], colors: ["#ffead1", "#ef913b", "#e6b84f"], title: "Good Food Good Mood" },
+  { id: "you-and-me", name: "You & Me", emoji: "💞", crop: [339, 839, 268, 400], x: 55, w: 163, ys: [63, 140, 211, 272], hs: [75, 67, 57, 60], colors: ["#171515", "#f8f0ed", "#f47fa9"], title: "You & Me" },
+  { id: "choose-happiness", name: "Choose Happiness", emoji: "🌈", crop: [652, 839, 266, 400], x: 50, w: 161, ys: [62, 142, 224, 272], hs: [74, 72, 44, 59], colors: ["#e9ddff", "#9b73dc", "#f0a8cf"], title: "Choose Happiness" },
+  { id: "best-yet-to-come", name: "The Best Is Yet to Come", emoji: "🌱", crop: [964, 839, 264, 400], x: 49, w: 160, ys: [63, 140, 224, 272], hs: [73, 73, 44, 57], colors: ["#fff9e9", "#76955a", "#ee766b"], title: "The Best Is Yet to Come" },
+];
+const FRAME_ART_CACHE = new Map();
+const frameSheet = new Image();
+frameSheet.onload = () => renderResult();
+frameSheet.onerror = () => console.error("Gagal memuat desain frame scrapbook.");
+frameSheet.src = "design-frames.jpeg";
+
+Object.assign(THEMES, Object.fromEntries(DESIGN_FRAMES.map((frame) => [frame.id, {
+  name: frame.name,
+  emoji: frame.emoji,
+  colors: frame.colors,
+  title: frame.title,
+  font: '"Pacifico", cursive',
+  text: frame.colors[1],
+  stickers: ["💖", "✨", "🌸", "⭐"],
+  defaultFilter: "normal",
+  designFrame: frame.id,
+  bg(ctx, W, H) { ctx.fillStyle = frame.colors[0]; ctx.fillRect(0, 0, W, H); },
+  frame() {},
+  clip(ctx, x, y, w, h) { ctx.beginPath(); ctx.rect(x, y, w, h); },
+}])));
+
 /* Gambar foto dengan efek pixel + palet warna terbatas (tema Pixel) */
 function drawPixelated(ctx, src, x, y, w, h, px) {
   const tw = Math.round(w / px), th = Math.round(h / px);
@@ -366,7 +401,8 @@ function buildThemes() {
     const b = document.createElement("button");
     b.className = "theme-card" + (key === state.theme ? " active" : "");
     b.dataset.key = key;
-    b.innerHTML = `<span class="emo">${t.emoji}</span><span class="nm">${t.name}</span>
+    if (t.designFrame) b.classList.add("is-frame-theme");
+    b.innerHTML = `<span class="${t.designFrame ? "theme-sticker-icon" : "emo"}">${t.emoji}</span><span class="nm">${t.name}</span>
       <span class="swatch">${t.colors.map((c) => `<i style="background:${c}"></i>`).join("")}</span>`;
     b.onclick = () => setTheme(key);
     box.appendChild(b);
@@ -383,11 +419,31 @@ function buildFilters() {
 }
 function setTheme(key) {
   state.theme = key;
+  const theme = THEMES[key];
+  $("layout").disabled = false;
   document.body.dataset.theme = key;
+  applyThemePalette(theme);
   document.querySelectorAll(".theme-card").forEach((c) => c.classList.toggle("active", c.dataset.key === key));
-  $("heroTitle").textContent = "📸 " + THEMES[key].title.replace(" ♡", "");
-  setFilter(THEMES[key].defaultFilter);
-  toast("Tema: " + THEMES[key].name);
+  $("heroTitle").textContent = "📸 " + theme.title.replace(" ♡", "");
+  setFilter(theme.defaultFilter);
+  toast("Tema: " + theme.name);
+}
+function applyThemePalette(theme) {
+  const palette = {
+    "--bg": theme.designFrame ? theme.colors[0] : "",
+    "--bg2": theme.designFrame ? theme.colors[0] : "",
+    "--card": theme.designFrame ? "rgba(255,255,255,.68)" : "",
+    "--text": theme.designFrame ? (["forever", "you-and-me"].includes(theme.designFrame) ? "#fff8f4" : "#3b2d35") : "",
+    "--muted": theme.designFrame ? (["forever", "you-and-me"].includes(theme.designFrame) ? "#dbcbd1" : "#765d67") : "",
+    "--accent": theme.designFrame ? theme.colors[1] : "",
+    "--accent2": theme.designFrame ? theme.colors[2] : "",
+    "--on-accent": theme.designFrame ? "#fff" : "",
+    "--head-font": theme.designFrame ? '"Pacifico", cursive' : "",
+  };
+  Object.entries(palette).forEach(([name, value]) => {
+    if (value) document.body.style.setProperty(name, value);
+    else document.body.style.removeProperty(name);
+  });
 }
 function setFilter(key) {
   state.filter = key;
@@ -402,7 +458,10 @@ function setBackgroundStyle(style) {
     input.checked = input.value === style;
   });
 }
-function slots() { const l = LAYOUTS[$("layout").value]; return l.cols * l.rows; }
+function slots() {
+  const l = LAYOUTS[$("layout").value];
+  return l.cols * l.rows;
+}
 function resetShots() {
   state.shots = Array(slots()).fill(null);
   buildDots(); buildThumbs(); renderResult();
@@ -698,9 +757,99 @@ function loadFromFiles(files) {
 }
 
 /* ===================== RENDER STRIP ===================== */
+function getFrameArt(frame) {
+  if (!frameSheet.complete || !frameSheet.naturalWidth) return null;
+  if (FRAME_ART_CACHE.has(frame.id)) return FRAME_ART_CACHE.get(frame.id);
+  const [sx, sy, sw, sh] = frame.crop;
+  const art = document.createElement("canvas");
+  art.width = sw; art.height = sh;
+  const artCtx = art.getContext("2d", { willReadFrequently: true });
+  artCtx.drawImage(frameSheet, sx, sy, sw, sh, 0, 0, sw, sh);
+  const image = artCtx.getImageData(0, 0, sw, sh);
+  for (let i = 0; i < image.data.length; i += 4) {
+    const r = image.data[i], g = image.data[i + 1], b = image.data[i + 2];
+    if (r >= 155 && r <= 220 && Math.max(r, g, b) - Math.min(r, g, b) <= 14) {
+      image.data[i + 3] = 0;
+    }
+  }
+  artCtx.putImageData(image, 0, 0);
+  FRAME_ART_CACHE.set(frame.id, art);
+  return art;
+}
+function drawCoverImage(ctx, image, x, y, w, h) {
+  const target = w / h, ratio = image.width / image.height;
+  let sx = 0, sy = 0, sw = image.width, sh = image.height;
+  if (ratio > target) { sw = image.height * target; sx = (image.width - sw) / 2; }
+  else { sh = image.width / target; sy = (image.height - sh) / 2; }
+  ctx.drawImage(image, sx, sy, sw, sh, x, y, w, h);
+}
+function renderDesignFrame(cv, ctx, frame, theme) {
+  const art = getFrameArt(frame);
+  if (!art) {
+    cv.width = PW; cv.height = PH;
+    ctx.fillStyle = theme.colors[0];
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = theme.text;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.font = "18px sans-serif";
+    ctx.fillText("Memuat desain frame…", cv.width / 2, cv.height / 2);
+    return;
+  }
+  const scale = 2.5, W = Math.round(art.width * scale), frameHeight = Math.round(art.height * scale);
+  const footerHeight = 88;
+  cv.width = W; cv.height = frameHeight + footerHeight;
+  theme.bg(ctx, cv.width, cv.height);
+  const layout = LAYOUTS[$("layout").value];
+  const count = layout.cols * layout.rows;
+  const top = frame.ys[0];
+  const bottom = frame.ys[3] + frame.hs[3];
+  const totalHeight = bottom - top;
+  const gridGapX = layout.cols > 1 ? 4 : 0;
+  const gridGapY = layout.rows > 1 ? 4 : 0;
+  const cellW = (frame.w - gridGapX * (layout.cols - 1)) / layout.cols;
+  const cellH = (totalHeight - gridGapY * (layout.rows - 1)) / layout.rows;
+  for (let i = 0; i < count; i++) {
+    const row = Math.floor(i / layout.cols), col = i % layout.cols;
+    const customStrip = $("layout").value === "strip4";
+    const x = Math.round((customStrip ? frame.x : frame.x + col * (cellW + gridGapX)) * scale);
+    const y = customStrip ? frame.ys[i] : top + row * (cellH + gridGapY);
+    const dy = Math.round(y * scale);
+    const w = Math.round((customStrip ? frame.w : cellW) * scale);
+    const h = Math.round((customStrip ? frame.hs[i] : cellH) * scale);
+    const shot = state.shots[i];
+    if (shot) drawCoverImage(ctx, shot, x, dy, w, h);
+    else {
+      ctx.fillStyle = "#c6c6c6";
+      ctx.fillRect(x, dy, w, h);
+    }
+  }
+  ctx.drawImage(art, 0, 0, W, frameHeight);
+
+  const caption = $("caption").value.trim();
+  const dateEnabled = $("optDate").checked;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillStyle = theme.text;
+  if (caption) {
+    ctx.font = "24px \"Poppins\", sans-serif";
+    ctx.fillText(caption, W / 2, frameHeight + (dateEnabled ? 28 : 44), W - 40);
+  }
+  if (dateEnabled) {
+    ctx.globalAlpha = 0.85;
+    ctx.font = "14px \"Poppins\", sans-serif";
+    ctx.fillText(new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
+      W / 2, frameHeight + (caption ? 62 : 44));
+    ctx.globalAlpha = 1;
+  }
+}
+
 function renderResult() {
   const cv = $("resultCanvas"), ctx = cv.getContext("2d");
   const L = LAYOUTS[$("layout").value], T = THEMES[state.theme];
+  if (T.designFrame) {
+    const frame = DESIGN_FRAMES.find((item) => item.id === T.designFrame);
+    if (frame) renderDesignFrame(cv, ctx, frame, T);
+    return;
+  }
   const W = PAD * 2 + L.cols * PW + (L.cols - 1) * GAP;
   const H = HEAD + L.rows * PH + (L.rows - 1) * GAP + FOOT + PAD / 2;
   cv.width = W; cv.height = H;
