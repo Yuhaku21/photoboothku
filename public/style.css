@@ -241,6 +241,10 @@ select option { color: #222; }
 .donation-actions { display: grid; width: 100%; gap: 10px; margin-top: 2px; }
 .donation-actions .btn, .donation-thanks-card > .btn { width: 100%; min-height: 46px; justify-content: center; }
 .donation-heart { font-size: 2.6rem; }
+.install-modal { z-index: 1001; }
+.install-icon { width: 76px; height: 76px; object-fit: contain; border-radius: 18px; }
+.install-modal .donation-modal-card h2 { padding: 0; }
+.install-help { width: 100%; padding: 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 12%, transparent); }
 
 /* Confetti */
 .confetti { position: fixed; top: -40px; z-index: 40; pointer-events: none; animation: fall linear forwards; }

@@ -7,8 +7,14 @@
   <meta name="description" content="Buat photobooth online gratis langsung dari browser. Pilih tema dan filter, foto sendiri atau bersama teman jarak jauh, lalu unduh photo strip PNG." />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#1a1a1a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Photoboothku" />
   <link rel="canonical" href="https://photoboothku-psi.vercel.app/" />
-  <link rel="icon" type="image/png" href="https://photoboothku-psi.vercel.app/logo.png" />
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="apple-touch-icon" href="app-icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="id_ID" />
   <meta property="og:site_name" content="Photoboothku" />
@@ -205,6 +211,19 @@
 
   <footer class="foot">Made By Yuhaku21</footer>
   <div class="toast" id="toast"></div>
+  <dialog class="donation-modal install-modal" id="installModal" aria-labelledby="installTitle">
+    <form method="dialog" class="donation-modal-card">
+      <button class="donation-close" id="btnInstallClose" type="submit" aria-label="Tutup">×</button>
+      <img class="install-icon" src="app-icon-192.png" alt="" />
+      <h2 id="installTitle">Yuk Tambahkan aplikasi photobooth di HP-mu!</h2>
+      <p>Pasang Photoboothku agar lebih praktis dibuka langsung dari layar utama.</p>
+      <div class="donation-actions">
+        <button class="btn primary" id="btnInstallApp" type="button">Download</button>
+        <button class="btn" id="btnInstallLater" type="submit">Nanti aja</button>
+      </div>
+      <p class="install-help" id="installHelp" hidden></p>
+    </form>
+  </dialog>
   <dialog class="donation-modal" id="donationModal" aria-labelledby="donationTitle">
     <form method="dialog" class="donation-modal-card">
       <button class="donation-close" type="submit" aria-label="Tutup">×</button>
@@ -233,5 +252,6 @@
   <script src="script.js"></script>
   <script src="duo.js"></script>
   <script src="splash.js"></script>
+  <script src="install.js"></script>
 </body>
 </html>
