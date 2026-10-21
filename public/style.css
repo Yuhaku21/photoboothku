@@ -81,6 +81,17 @@ body[data-theme="kawaii"] {
   .splash-logo, .splash-loader span { animation: none; }
 }
 
+.app-header {
+  position: sticky; top: 0; z-index: 80; display: flex; align-items: center;
+  min-height: 62px; padding: 8px max(20px, calc((100vw - 1150px) / 2));
+  border-bottom: 1px solid rgba(232,217,160,.18);
+  background: rgba(26,26,26,.96);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.brand-link { display: inline-flex; align-items: center; gap: 9px; color: #f5f5f5; text-decoration: none; font-size: .98rem; font-weight: 600; letter-spacing: .01em; }
+.brand-link:visited, .brand-link:hover { color: #f5f5f5; text-decoration: none; }
+.brand-link img { display: block; width: 38px; height: 38px; object-fit: contain; }
+
 .hero { text-align: center; padding: 34px 16px 10px; }
 .hero h1 {
   font-family: var(--head-font); font-size: clamp(2rem, 6vw, 3.4rem);
@@ -245,6 +256,29 @@ select option { color: #222; }
 .install-icon { width: 76px; height: 76px; object-fit: contain; border-radius: 18px; }
 .install-modal .donation-modal-card h2 { padding: 0; }
 .install-help { width: 100%; padding: 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 12%, transparent); }
+
+.collection-page { max-width: 900px; min-height: calc(100dvh - 130px); margin: 0 auto; padding: 28px 20px 40px; }
+.collection-heading { margin-bottom: 24px; }
+.collection-heading .eyebrow { margin-bottom: 8px; color: var(--accent); font-size: .72rem; font-weight: 600; letter-spacing: .16em; }
+.collection-heading h1 { color: var(--text); font-family: var(--head-font); font-size: clamp(1.8rem, 7vw, 2.5rem); }
+.collection-heading > p:last-child { margin-top: 6px; color: var(--muted); font-size: .9rem; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+.photo-card { min-width: 0; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 16px; background: var(--card); }
+.photo-open { display: block; width: 100%; padding: 8px; border: 0; color: inherit; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.photo-open img { display: block; width: 100%; aspect-ratio: 4 / 5; border-radius: 10px; background: rgba(0,0,0,.2); object-fit: contain; }
+.photo-date { display: block; padding: 8px 4px 2px; color: var(--muted); font-size: .76rem; }
+.photo-save { width: calc(100% - 16px); min-height: 40px; justify-content: center; margin: 0 8px 8px; padding: 8px; font-size: .78rem; }
+.photo-save:disabled { opacity: .75; }
+.collection-empty { grid-column: 1 / -1; padding: 38px 20px; border: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 16px; color: var(--muted); text-align: center; line-height: 1.6; }
+.help-card { display: grid; gap: 16px; padding: 20px; border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 18px; background: var(--card); }
+.help-card h2 { font-size: 1.05rem; }
+.help-card ol { display: grid; gap: 12px; padding-left: 22px; color: var(--muted); font-size: .9rem; line-height: 1.6; }
+.help-card b { color: var(--text); }
+.help-note { padding: 12px; border-radius: 12px; color: var(--muted); background: color-mix(in srgb, var(--accent) 12%, transparent); font-size: .82rem; line-height: 1.55; }
+.photo-order-modal .donation-modal-card { gap: 12px; }
+.order-preview { display: block; width: min(64vw, 260px); max-height: 35dvh; border-radius: 12px; object-fit: contain; background: rgba(0,0,0,.16); }
+.order-whatsapp { width: 100%; min-height: 48px; justify-content: center; }
+.app-navbar { display: none; }
 
 /* Confetti */
 .confetti { position: fixed; top: -40px; z-index: 40; pointer-events: none; animation: fall linear forwards; }
@@ -446,8 +480,11 @@ body[data-theme="ocean"] .camera-wrap { border-radius: 22px; box-shadow: 0 0 0 4
   body {
     min-height: 100dvh;
     background-attachment: scroll;
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
   }
+  .app-header { min-height: 58px; padding: 6px 16px; }
+  .brand-link { gap: 7px; font-size: .9rem; }
+  .brand-link img { width: 36px; height: 36px; }
   .hero { padding: 22px 12px 4px; }
   .hero p { font-size: .85rem; }
   .layout { padding: 0 12px; gap: 14px; margin: 12px auto; }
@@ -492,6 +529,31 @@ body[data-theme="ocean"] .camera-wrap { border-radius: 22px; box-shadow: 0 0 0 4
   .history { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }
   .history img { height: 90px; flex: 0 0 auto; }
   .toast { width: max-content; max-width: 90vw; text-align: center; bottom: calc(20px + env(safe-area-inset-bottom)); }
+
+  .app-navbar {
+    position: fixed; right: 50%; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 90;
+    display: grid; width: min(430px, calc(100% - 28px)); grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px;
+    padding: 6px; border: 1px solid rgba(255,255,255,.14); border-radius: 999px;
+    background: rgba(24,24,24,.94); box-shadow: 0 10px 36px rgba(0,0,0,.32);
+    transform: translateX(50%);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  }
+  .nav-item {
+    display: grid; justify-items: center; gap: 3px; min-width: 0; min-height: 54px; padding: 6px 2px;
+    border: 0; border-radius: 999px; color: #aaa; background: transparent;
+    font: inherit; font-size: .67rem; cursor: pointer;
+  }
+  .nav-item.active { color: #171717; background: var(--accent); font-weight: 600; }
+  .nav-icon { font-size: 1.2rem; line-height: 1.2; }
+  .collection-page { min-height: calc(100dvh - 82px); padding: 24px 14px 24px; }
+  .collection-heading { margin-bottom: 18px; }
+  .photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .photo-card { border-radius: 14px; }
+  .photo-open { padding: 6px; }
+  .photo-open img { border-radius: 9px; }
+  .photo-save { width: calc(100% - 12px); min-height: 42px; margin: 0 6px 6px; padding: 6px 4px; font-size: .7rem; }
+  .help-card { padding: 16px; }
+  .app-footer { padding-bottom: 12px; }
 }
 
 /* HP layar sangat kecil */

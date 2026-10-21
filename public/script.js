@@ -960,6 +960,7 @@ function saveHistory() {
   if (allEmpty()) return;
   const url = $("resultCanvas").toDataURL("image/jpeg", 0.7);
   state.history.unshift(url); state.history = state.history.slice(0, 6);
+  window.dispatchEvent(new CustomEvent("photobooth:photo-created", { detail: { image: url } }));
   const box = $("history"); box.innerHTML = "";
   state.history.forEach((u) => {
     const im = new Image(); im.src = u; im.title = "Klik untuk membuka";

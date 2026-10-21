@@ -49,7 +49,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Special+Elite&family=Orbitron:wght@600;800&family=Playfair+Display:wght@600;800&family=Poppins:wght@400;500;600&family=Press+Start+2P&family=Creepster&family=Audiowide&family=Bangers&family=Fredoka:wght@500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=mobile-responsive" />
+  <link rel="stylesheet" href="style.css?v=mobile-header-clean" />
 </head>
 <body data-theme="classic">
   <div class="splash-screen" id="splashScreen" role="status" aria-label="Memuat SnapBooth">
@@ -60,10 +60,18 @@
     </div>
   </div>
 
-  <header class="hero">
-    <h1 id="heroTitle">📸 SnapBooth</h1>
-    <p>Pilih tema, berpose, dan unduh strip fotomu dalam hitungan detik.</p>
+  <header class="app-header">
+    <a class="brand-link" href="./" aria-label="Photoboothku - Studio">
+      <img src="brand-mark.png" alt="" />
+      <span>Photoboothku</span>
+    </a>
   </header>
+
+  <div class="app-page is-active" id="studioPage">
+    <header class="hero">
+      <h1 id="heroTitle">📸 SnapBooth</h1>
+      <p>Pilih tema, berpose, dan unduh strip fotomu dalam hitungan detik.</p>
+    </header>
 
   <main class="layout">
     <!-- PANEL KAMERA -->
@@ -166,7 +174,6 @@
         <label class="switch"><input type="checkbox" name="backgroundStyle" value="blur" /><span>Blur latar asli</span></label>
         <label class="switch"><input type="checkbox" name="backgroundStyle" value="solid" /><span>Warna solid krem</span></label>
         <label class="switch"><input type="checkbox" id="optFaceSmooth" /><span>Deteksi & haluskan wajah (natural)</span></label>
-        <span class="field-hint">Wajah dideteksi di perangkat saat foto diambil; efek hanya diterapkan pada area wajah. Tidak mengenali identitas. Model perlu diunduh dari internet.</span>
       </fieldset>
 
       <label class="field">Teks Caption
@@ -209,8 +216,65 @@
     <p>Ingin foto bersama teman yang berada jauh? Gunakan mode berdua online untuk melihat kamera secara langsung, mengambil foto bersama, dan mendapatkan hasil frame yang dibagi untuk kalian berdua.</p>
   </section>
 
-  <footer class="foot">Made By Yuhaku21</footer>
+  </div>
+  <section class="app-page collection-page" id="galleryPage" hidden aria-labelledby="galleryTitle">
+    <header class="collection-heading">
+      <p class="eyebrow">KOLEKSI KAMU</p>
+      <h1 id="galleryTitle">Galeri</h1>
+      <p>Semua hasil foto tersimpan di perangkat ini.</p>
+    </header>
+    <div class="photo-grid" id="historyGrid" aria-live="polite"></div>
+  </section>
+  <section class="app-page collection-page" id="printPage" hidden aria-labelledby="printTitle">
+    <header class="collection-heading">
+      <p class="eyebrow">CETAK FOTO</p>
+      <h1 id="printTitle">Pilih foto untuk dicetak</h1>
+      <p>Foto yang kamu simpan ke galeri akan muncul di sini.</p>
+    </header>
+    <div class="photo-grid" id="savedGrid" aria-live="polite"></div>
+  </section>
+  <section class="app-page collection-page" id="helpPage" hidden aria-labelledby="helpTitle">
+    <header class="collection-heading">
+      <p class="eyebrow">PUSAT BANTUAN</p>
+      <h1 id="helpTitle">Bantuan</h1>
+      <p>Butuh bantuan menggunakan Photoboothku?</p>
+    </header>
+    <div class="help-card">
+      <h2>Cara menggunakan Photoboothku</h2>
+      <ol>
+        <li>Buka tab <b>Studio</b>, pilih tema, lalu aktifkan kamera.</li>
+        <li>Ambil foto. Hasilnya otomatis tersimpan di tab <b>Galeri</b> pada perangkat ini.</li>
+        <li>Tekan <b>Simpan ke Galeri</b> pada foto yang ingin dicetak.</li>
+        <li>Buka tab <b>Cetak</b>, pilih foto, lalu lanjutkan pesanan melalui WhatsApp.</li>
+      </ol>
+      <p class="help-note">Foto disimpan secara lokal di browser perangkatmu dan tidak diunggah ke server.</p>
+    </div>
+  </section>
+  <footer class="foot app-footer" id="appFooter">Made By Yuhaku21</footer>
+  <nav class="app-navbar" aria-label="Navigasi utama">
+    <button class="nav-item active" type="button" data-page="studio" aria-current="page">
+      <span class="nav-icon" aria-hidden="true">📸</span><span>Studio</span>
+    </button>
+    <button class="nav-item" type="button" data-page="gallery">
+      <span class="nav-icon" aria-hidden="true">🖼️</span><span>Galeri</span>
+    </button>
+    <button class="nav-item" type="button" data-page="print">
+      <span class="nav-icon" aria-hidden="true">🖨️</span><span>Cetak</span>
+    </button>
+    <button class="nav-item" type="button" data-page="help">
+      <span class="nav-icon" aria-hidden="true">❔</span><span>Bantuan</span>
+    </button>
+  </nav>
   <div class="toast" id="toast"></div>
+  <dialog class="donation-modal photo-order-modal" id="photoOrderModal" aria-labelledby="photoOrderTitle">
+    <form method="dialog" class="donation-modal-card">
+      <button class="donation-close" type="submit" aria-label="Tutup">×</button>
+      <img class="order-preview" id="orderPreview" alt="Foto yang dipilih untuk dicetak" />
+      <h2 id="photoOrderTitle">Cetak foto ini</h2>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pilih foto ini untuk melanjutkan pesanan cetak melalui WhatsApp.</p>
+      <button class="btn primary order-whatsapp" id="btnOrderWhatsApp" type="button">Cetak Foto via WhatsApp</button>
+    </form>
+  </dialog>
   <dialog class="donation-modal install-modal" id="installModal" aria-labelledby="installTitle">
     <form method="dialog" class="donation-modal-card">
       <button class="donation-close" id="btnInstallClose" type="submit" aria-label="Tutup">×</button>
@@ -253,5 +317,6 @@
   <script src="duo.js"></script>
   <script src="splash.js"></script>
   <script src="install.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
