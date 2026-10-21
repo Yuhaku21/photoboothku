@@ -5,11 +5,13 @@ window.addEventListener("load", () => {
   const installButton = document.getElementById("btnInstallApp");
   const laterButton = document.getElementById("btnInstallLater");
   const closeButton = document.getElementById("btnInstallClose");
+  const headerInstallButton = document.getElementById("btnHeaderInstall");
   const help = document.getElementById("installHelp");
   if (!(modal instanceof HTMLDialogElement) ||
       !(installButton instanceof HTMLButtonElement) ||
       !(laterButton instanceof HTMLButtonElement) ||
       !(closeButton instanceof HTMLButtonElement) ||
+      !(headerInstallButton instanceof HTMLButtonElement) ||
       !(help instanceof HTMLParagraphElement)) return;
 
   let installPrompt = null;
@@ -37,6 +39,10 @@ window.addEventListener("load", () => {
   laterButton.addEventListener("click", dismiss);
   closeButton.addEventListener("click", dismiss);
   modal.addEventListener("close", dismiss);
+  headerInstallButton.addEventListener("click", () => {
+    help.hidden = true;
+    if (!modal.open) modal.showModal();
+  });
 
   installButton.addEventListener("click", async () => {
     if (!installPrompt) {

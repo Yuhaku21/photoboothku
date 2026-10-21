@@ -1,10 +1,10 @@
 "use strict";
 
-const CACHE_NAME = "photoboothku-v4";
+const CACHE_NAME = "photoboothku-v5";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./style.css?v=mobile-header-clean",
+  "./style.css?v=header-download-cta",
   "./script.js",
   "./duo.js",
   "./splash.js",

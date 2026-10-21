@@ -82,7 +82,7 @@ body[data-theme="kawaii"] {
 }
 
 .app-header {
-  position: sticky; top: 0; z-index: 80; display: flex; align-items: center;
+  position: sticky; top: 0; z-index: 80; display: flex; align-items: center; justify-content: space-between; gap: 12px;
   min-height: 62px; padding: 8px max(20px, calc((100vw - 1150px) / 2));
   border-bottom: 1px solid rgba(232,217,160,.18);
   background: rgba(26,26,26,.96);
@@ -91,6 +91,14 @@ body[data-theme="kawaii"] {
 .brand-link { display: inline-flex; align-items: center; gap: 9px; color: #f5f5f5; text-decoration: none; font-size: .98rem; font-weight: 600; letter-spacing: .01em; }
 .brand-link:visited, .brand-link:hover { color: #f5f5f5; text-decoration: none; }
 .brand-link img { display: block; width: 38px; height: 38px; object-fit: contain; }
+.header-install-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: 0 0 auto;
+  min-height: 38px; padding: 0 14px; border: 1px solid rgba(232,217,160,.65); border-radius: 999px;
+  color: #1a1a1a; background: #e8d9a0; font: inherit; font-size: .78rem; font-weight: 600;
+  white-space: nowrap; cursor: pointer; transition: background .2s, transform .2s;
+}
+.header-install-button:hover { background: #f0e5bd; transform: translateY(-1px); }
+.header-install-button span { font-size: 1rem; line-height: 1; }
 
 .hero { text-align: center; padding: 34px 16px 10px; }
 .hero h1 {
@@ -482,9 +490,10 @@ body[data-theme="ocean"] .camera-wrap { border-radius: 22px; box-shadow: 0 0 0 4
     background-attachment: scroll;
     padding-bottom: calc(104px + env(safe-area-inset-bottom));
   }
-  .app-header { min-height: 58px; padding: 6px 16px; }
+  .app-header { min-height: 58px; padding: 6px 14px; }
   .brand-link { gap: 7px; font-size: .9rem; }
   .brand-link img { width: 36px; height: 36px; }
+  .header-install-button { min-height: 36px; padding: 0 11px; font-size: .72rem; }
   .hero { padding: 22px 12px 4px; }
   .hero p { font-size: .85rem; }
   .layout { padding: 0 12px; gap: 14px; margin: 12px auto; }
